@@ -37,4 +37,4 @@ workflows:
       - build:
           name: Build-Job
           requires:
-            - print_hello
+            - Hello-Job
