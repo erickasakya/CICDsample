@@ -9,7 +9,7 @@ jobs:
       - checkout
       - run:
           name: Hello
-          command: echo "Hello"
+          command: echo "Hello Circle CI"
 
   build:
     docker:
