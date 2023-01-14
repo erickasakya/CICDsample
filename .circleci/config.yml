@@ -22,7 +22,7 @@ jobs:
           name: Save Hello world to a a cache
           command: echo "Hello World from Eric Kasakya" > output.txt
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: workspace
           paths:
             - output.txt
 
