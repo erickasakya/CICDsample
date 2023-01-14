@@ -1,5 +1,11 @@
 # Python CircleCI 2.0 configuration file
 version: 2.1
+executors: 
+  default-executor:
+    docker:
+      - image: cimg/base:2023.01
+    working_directory: /tmp
+
 workflows:
   ci_build:
     jobs:
@@ -14,9 +20,7 @@ workflows:
             - Hello-Job
 jobs:
   save_hello_world_output:
-    docker:
-      - image: cimg/base:2023.01
-    working_directory: /tmp
+    executor: default-executor
     steps:
       - run: mkdir -p workspace
       - run:
@@ -28,9 +32,7 @@ jobs:
             - output.txt
 
   print_output_file:
-    docker:
-      - image: cimg/base:2023.01
-    working_directory: /tmp
+    executor: default-executor
     steps:
       - attach_workspace:
           at: /tmp/workspace
