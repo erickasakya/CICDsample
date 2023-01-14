@@ -3,21 +3,38 @@ version: 2.1
 workflows:
   ci_build:
     jobs:
-      - print_hello:
+      - save_hello_world_output:
           name: Hello-Job
+      - print_output_file:
+          requires:
+              - Hello-Job
       - build:
           name: Build-Job
           requires:
             - Hello-Job
 jobs:
-  print_hello:
+  save_hello_world_output:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
-          name: Hello
-          command: echo "Hello Circle CI"
+          name: Save Hello world to a a cache
+          command: echo "Hello World from Eric Kasakya" > output.txt
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - output.txt
+
+  print_output_file:
+    docker:
+      - image: cimg/base:2023.01
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Echo out the restored file
+          command: echo output.txt
   build:
     docker:
       - image: circleci/python:3.7
