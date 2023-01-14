@@ -42,12 +42,12 @@ jobs:
       executor: default-executor
       steps:
         - run: |
-            echo 1
+            return 1
         -  run:
             name: On Fa il say why
             command: echo "But why"
             when: on_fail
-            
+
   print_output_file:
     executor: default-executor
     steps:
