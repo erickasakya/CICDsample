@@ -1,5 +1,11 @@
 # Python CircleCI 2.0 configuration file
 version: 2.1
+commands:
+  print_workflow_id:
+    description: "A very simple command to print the workflow id"
+    steps:
+      - run: echo $CIRCLE_WORKFLOW_ID
+
 executors: 
   default-executor:
     docker:
@@ -22,6 +28,7 @@ jobs:
   save_hello_world_output:
     executor: default-executor
     steps:
+      - print_workflow_id
       - run: mkdir -p workspace
       - run:
           name: Save Hello world to a a cache
@@ -34,6 +41,7 @@ jobs:
   print_output_file:
     executor: default-executor
     steps:
+      - print_workflow_id
       - attach_workspace:
           at: /tmp/workspace
       - run: |
