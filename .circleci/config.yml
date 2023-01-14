@@ -15,6 +15,7 @@ executors:
 workflows:
   ci_build:
     jobs:
+      - test_on_fail 
       - save_hello_world_output:
           name: Hello-Job
       - print_output_file:
@@ -37,7 +38,16 @@ jobs:
           root: workspace
           paths:
             - output.txt
-
+  test_on_fail:
+      executor: default-executor
+      steps:
+        - run: |
+            echo 1
+        -  run:
+            name: On Fa il say why
+            command: echo "But why"
+            when: on_fail
+            
   print_output_file:
     executor: default-executor
     steps:
