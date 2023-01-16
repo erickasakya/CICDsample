@@ -1,20 +1,68 @@
 # Python CircleCI 2.0 configuration file
 version: 2.1
-
-jobs:
-  print_hello:
-    docker:
-      - image: circleci/node:13.8.0
+commands:
+  print_workflow_id:
+    description: "A very simple command to print the workflow id"
     steps:
-      - checkout
-      - run:
-          name: Hello
-          command: echo "Hello Circle CI"
+      - run: echo $CIRCLE_WORKFLOW_ID
 
+executors: 
+  default-executor:
+    docker:
+      - image: cimg/base:2023.01
+    working_directory: /tmp
+
+workflows:
+  ci_build:
+    jobs:
+      - test_on_fail 
+      - save_hello_world_output:
+          name: Hello-Job
+      - print_output_file:
+          requires:
+              - Hello-Job
+      - build:
+          name: Build-Job
+          requires:
+            - Hello-Job
+jobs:
+  save_hello_world_output:
+    executor: default-executor
+    steps:
+      - print_workflow_id
+      - run: mkdir -p workspace
+      - run:
+          name: Save Hello world to a a cache
+          command: echo "Hello, World from Eric Kasakya" > workspace/output.txt
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - output.txt
+  test_on_fail:
+      executor: default-executor
+      steps:
+        - run: |
+            return 1
+        -  run:
+            name: On Fa il say why
+            command: echo "But why"
+            when: on_fail
+
+  print_output_file:
+    executor: default-executor
+    steps:
+      - print_workflow_id
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: |
+          if [[ `cat /tmp/workspace/output.txt` == "Hello, World from Eric Kasakya" ]]; then
+            echo "It worked!";
+          else
+            echo "Nope!"; exit 1
+          fi
   build:
     docker:
       - image: circleci/python:3.7
-    working_directory: ~/repo
     steps:
       - checkout
       - run:
@@ -29,12 +77,3 @@ jobs:
             . venv/bin/activate
             flake8 --exclude=venv* --statistics
             pytest -v --cov=calculator
-workflows:
-  CI_build:
-    jobs:
-      - print_hello:
-          name: Hello-Job
-      - build:
-          name: Build-Job
-          requires:
-            - Hello-Job
