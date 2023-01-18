@@ -4,7 +4,6 @@ executors:
   python-excutor:
     docker:
       - image: circleci/python:3.7
-    working_directory: /tmp
 workflows:
   ci_build:
     jobs:
