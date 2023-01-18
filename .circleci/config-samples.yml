@@ -1,0 +1,64 @@
+versionn: 2.1
+# After testing these concepts, I made a second file to jest keep the sample code
+commands:
+  print_workflow_id:
+    description: "A very simple command to print the workflow id"
+    steps:
+      - run: echo $CIRCLE_WORKFLOW_ID
+  make_workspace_dir:
+    description: "For share files accros job we need a folder"
+    steps:
+      - run: mkdir -p workspace
+
+executors: 
+  default-executor:
+    docker:
+      - image: cimg/base:2023.01
+    working_directory: /tmp
+
+workflows:
+  ci_build:
+    jobs:
+      # - test_on_fail
+      - save_hello_world_output
+      - print_output_file:
+          requires:
+            - save_hello_world_output
+
+jobs:
+  save_hello_world_output:
+    executor: default-executor
+    steps:
+      - print_workflow_id
+      - make_workspace_dir
+      - run:
+          name: Save Hello world to a a cache
+          command: echo "Hello, World from Eric Kasakya" > workspace/output.txt
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - output.txt
+  test_on_fail:
+      executor: default-executor
+      steps:
+        - run: |
+            return 1
+        -  run:
+            name: On Fa il say why
+            command: echo "But why"
+            when: on_fail
+
+  print_output_file:
+    executor: default-executor
+    steps:
+      - print_workflow_id
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: |
+          if [[ `cat /tmp/workspace/output.txt` == "Hello, World from Eric Kasakya" ]]; then
+            echo "It worked!";
+          else
+            echo "Nope!"; exit 1
+          fi
+
+# VS Code Extension Version: 1.5.1
